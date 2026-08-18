@@ -87,8 +87,9 @@ def call (Map configMap){
             }
             stage('Check Dependabot Alerts') {
                 steps {
-                    withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
-                        try{
+                    try{
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                        
                             sh '''
                                 set -e
 
@@ -117,12 +118,12 @@ def call (Map configMap){
                                 fi
                             '''
                             utils.updateCommitStatus("success", "library scan success", "library-scan")
+                        
                         }
-                        catch (Exception e){
+                    }
+                    catch (Exception e){
                             utils.updateCommitStatus("failure", "library scan failed", "library-scan")
                             throw e
-                        }
-                        
                     }
                 }
             }
