@@ -49,13 +49,19 @@ def call (Map configMap){
             stage('Unit tests') {
                 steps {
                     script {
-                        sh """
-                            npm test
-                        """
+                        try{
+                            sh """
+                                npm test
+                            """
+                            updateCommitStatus("success", "unit tests are successful", "unit-tests")
+                        }
+                        catch(Exception e){
+                            updateCommitStatus("failiure", "unit tests are failed", "unit-tests")
+                        }
                     } 
                 }
             }
-            /* stage('SonarQube Analysis') {
+            stage('SonarQube Analysis') {
                 steps {
                     // 'My SonarQube Server' must match the name configured in Jenkins System Settings
                     withSonarQubeEnv('sonar-server') {
@@ -74,7 +80,7 @@ def call (Map configMap){
                         }
                     }
                 }
-            } */
+            }
             stage('Check Dependabot Alerts') {
                 steps {
                     withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
