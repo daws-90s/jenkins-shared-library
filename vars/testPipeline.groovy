@@ -1,4 +1,3 @@
-// This is function, by default if some one calls this pipeline like testPipeline call function will be executed
 def call (Map configMap){
     pipeline {
         agent any
@@ -9,11 +8,10 @@ def call (Map configMap){
         stages {
             stage('Build') {
                 steps {
-                    script {
+                    script{
                         sh """
                             echo 'Building..'
-                            echo "Project: ${project}, component: ${component}"
-                            printenv | sort
+                            printenv
                         """
                     }
                     
