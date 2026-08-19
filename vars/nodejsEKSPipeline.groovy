@@ -80,9 +80,10 @@ def call (Map configMap){
                         script {
                             //def qg = waitForQualityGate() // Pauses pipeline
                             def qg = "OK"
-                            if (qg.status != 'OK') {
+                            //if (qg.status != 'OK') {
+                            if (qg != 'OK') {
                                 utils.updateCommitStatus("failure", "sonar scan are failed", "sonar-scan")
-                                error "Pipeline aborted: ${qg.status}"
+                                error "Pipeline aborted: ${qg}"
                             }
                             else{
                                 utils.updateCommitStatus("success", "sonar scan are successful", "sonar-scan")
