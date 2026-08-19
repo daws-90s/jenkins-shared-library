@@ -10,7 +10,7 @@ def call (Map configMap){
             acc_id = "160885265516"
             project = configMap.get("project")
             component = configMap.get("component")
-            org = "90s-org"
+            org = "daws-90s"
         }
         options {
             disableConcurrentBuilds()
