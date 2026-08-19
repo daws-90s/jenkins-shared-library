@@ -68,7 +68,9 @@ def call (Map configMap){
                         sh "${tool 'sonar-8'}/bin/sonar-scanner"
                     } */
                     script {
-                        sh "echo 'sonarqube analysis done'"
+                        sh """
+                        echo "sonarqube analysis done"
+                        """
                     }
                 }
             }
