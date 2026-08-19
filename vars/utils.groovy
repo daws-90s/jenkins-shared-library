@@ -42,3 +42,43 @@ def updateCommitStatus(String state, String description, String context = 'Jenki
         }
     }
 }
+
+def validateCommitStatus(String commitSha, List requiredContexts) {
+    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+        def repoUrl = sh(script: 'git remote get-url origin', returnStdout: true).trim()
+        def repoPath = repoUrl.replaceAll(/.*github\.com[\/:]/, '').replaceAll(/\.git$/, '')
+
+        withEnv([
+            "REPO_PATH=${repoPath}",
+            "COMMIT_SHA=${commitSha}",
+            "REQUIRED_CONTEXTS=${requiredContexts.join(',')}"
+        ]) {
+            sh '''
+                set -e
+
+                curl -sf \
+                    -H "Authorization: Bearer $GITHUB_TOKEN" \
+                    -H "Accept: application/vnd.github+json" \
+                    -H "X-GitHub-Api-Version: 2022-11-28" \
+                    "https://api.github.com/repos/$REPO_PATH/commits/$COMMIT_SHA/status" \
+                    -o commit-status.json
+
+                FAILED=0
+                for CTX in $(echo "$REQUIRED_CONTEXTS" | tr ',' ' '); do
+                    STATE=$(jq -r --arg ctx "$CTX" '.statuses[] | select(.context == $ctx) | .state' commit-status.json | head -n1)
+                    echo "context=$CTX state=${STATE:-missing}"
+                    if [ "$STATE" != "success" ]; then
+                        FAILED=1
+                    fi
+                done
+
+                rm -f commit-status.json
+
+                if [ "$FAILED" -eq 1 ]; then
+                    echo "One or more required status checks are not successful for commit $COMMIT_SHA"
+                    exit 1
+                fi
+            '''
+        }
+    }
+}
