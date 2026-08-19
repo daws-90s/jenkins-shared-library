@@ -228,6 +228,19 @@ def call (Map configMap){
                     }
                 }
             }
+            stage('api-tests'){
+                steps{
+                    script{
+                        build job: 'catalogue-api-tests',
+                        wait: true, // shoud wait
+                        propagate: true, // downstream errors are considered as upstream errors too
+                        parameters: [
+                            string(name: 'NAMESPACE', value: 'roboshop-dev'),
+                            string(name: 'COMMIT_ID', value: "${env.GIT_COMMIT}")
+                        ]
+                    }
+                }
+            }
         }
 
         post { 
