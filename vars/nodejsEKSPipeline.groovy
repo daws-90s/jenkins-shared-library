@@ -234,11 +234,15 @@ def call (Map configMap){
             always { 
                 echo 'I will always say Hello again!'
             }
-            success { 
-                echo 'I will run when success'
+            success {
+                slackSend channel: '#jenkins-alerts-90s',
+                        color: 'good',
+                        message: "SUCCESS: Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) [ <${env.BUILD_URL}|View Build> ]"
             }
             failure { 
-                echo 'I will Run when it is failed'
+                slackSend channel: '#jenkins-alerts-90s',
+                      color: 'danger',
+                      message: "FAILED: Job '${env.JOB_NAME}' (${env.BUILD_NUMBER}) [ <${env.BUILD_URL}|View Build> ]"
             }
         }
     }
