@@ -236,7 +236,7 @@ def call (Map configMap){
                         propagate: true, // downstream errors are considered as upstream errors too
                         parameters: [
                             string(name: 'NAMESPACE', value: 'roboshop-dev'),
-                            string(name: 'COMMIT_ID', value: "${env.GIT_COMMIT}")
+                            string(name: 'COMMIT_ID', value: env.GIT_COMMIT )
                         ]
                     }
                 }
