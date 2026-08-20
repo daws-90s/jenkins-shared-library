@@ -455,10 +455,17 @@ def call (Map configMap){
                 }
                 steps {
                     script {
-                        utils.tagCommit(env_COMMIT_ID.trim(), env_VERSION.trim())
-                        echo "Tagged ${env_COMMIT_ID} as ${env_VERSION} (CR ${env_CR_NUMBER})"
-                        if (env_ISSUE_KEY?.trim()) {
-                            utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Completed')
+                        try {
+                            utils.tagCommit(env_COMMIT_ID.trim(), env_VERSION.trim())
+                            echo "Tagged ${env_COMMIT_ID} as ${env_VERSION} (CR ${env_CR_NUMBER})"
+                            utils.updateCommitStatus('success', "Tagged as ${env_VERSION}", 'tag-release')
+                            if (env_ISSUE_KEY?.trim()) {
+                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Completed')
+                            }
+                        }
+                        catch (Exception e) {
+                            utils.updateCommitStatus('failure', 'Tagging release failed', 'tag-release')
+                            throw e
                         }
                     }
                 }
