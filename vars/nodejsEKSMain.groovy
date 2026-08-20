@@ -438,7 +438,7 @@ def call (Map configMap){
                                         --namespace roboshop-prod \
                                         --create-namespace \
                                         --set deployment.imageVersion="nothing" \
-                                        --wait --timeout 5m
+                                        --wait --timeout 1m
 
                                     kubectl rollout status deployment/${env_COMPONENT} -n roboshop-prod --timeout=120s
                                 """
