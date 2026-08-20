@@ -132,6 +132,9 @@ def call (Map configMap){
                 when {
                     expression { env_ENVIRONMENT == 'dev' }
                 }
+                options {
+                    timeout(time: 2, unit: 'MINUTES')
+                }
                 steps {
                     script {
                         try {
@@ -254,6 +257,9 @@ def call (Map configMap){
                 when {
                     expression { env_ENVIRONMENT == 'sit' }
                 }
+                options {
+                    timeout(time: 2, unit: 'MINUTES')
+                }
                 steps {
                     script {
                         try {
@@ -329,6 +335,9 @@ def call (Map configMap){
             stage('uat-regression-tests') {
                 when {
                     expression { env_ENVIRONMENT == 'uat' }
+                }
+                options {
+                    timeout(time: 2, unit: 'MINUTES')
                 }
                 steps {
                     script {
