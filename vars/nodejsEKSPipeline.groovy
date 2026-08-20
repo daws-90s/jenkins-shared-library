@@ -234,7 +234,7 @@ def call (Map configMap){
                     }
                 }
             }
-            /* stage('raise-pr') {
+            stage('raise-pr') {
                 when {
                     not { branch 'main' }
                 }
@@ -250,7 +250,7 @@ def call (Map configMap){
                         }
                     }
                 }
-            } */
+            }
         }
 
         post {
