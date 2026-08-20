@@ -243,7 +243,7 @@ def call (Map configMap){
                         catch (Exception e) {
                             utils.updateCommitStatus('failure', 'Deploy to roboshop-sit failed', 'sit-deploy')
                             if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Trigger SIT')
+                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'SIT Failed')
                             }
                             throw e
                         }
@@ -286,7 +286,7 @@ def call (Map configMap){
                         catch (Exception e) {
                             utils.updateCommitStatus('failure', 'roboshop-integration-tests failed', 'sit-integration-tests')
                             if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Trigger SIT')
+                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'SIT Failed')
                             }
                             throw e
                         }
@@ -319,7 +319,7 @@ def call (Map configMap){
                         catch (Exception e) {
                             utils.updateCommitStatus('failure', 'Deploy to roboshop-uat failed', 'uat-deploy')
                             if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Trigger UAT')
+                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'UAT Failed')
                             }
                             throw e
                         }
@@ -362,7 +362,7 @@ def call (Map configMap){
                         catch (Exception e) {
                             utils.updateCommitStatus('failure', 'roboshop-regression-tests failed', 'uat-regression-tests')
                             if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Trigger UAT')
+                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'UAT Failed')
                             }
                             throw e
                         }
@@ -439,7 +439,7 @@ def call (Map configMap){
                                 }
                                 utils.updateCommitStatus('failure', 'Deploy to roboshop-prod failed', 'prod-deploy')
                                 if (env_ISSUE_KEY?.trim()) {
-                                    utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'Trigger PROD')
+                                    utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'PROD Failed')
                                 }
                                 throw e
                             }
