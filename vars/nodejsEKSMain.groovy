@@ -6,8 +6,8 @@ def call (Map configMap){
             }
         }
         parameters {
-            // 'dev' is first, so it's the default when this build is triggered
-            // automatically by a push to main (no parameters supplied).
+            /* 'dev' is first, so it's the default when this build is triggered
+               automatically by a push to main (no parameters supplied). */
             choice(name: 'ENVIRONMENT', choices: ['dev', 'sit', 'uat', 'prod'], description: 'Environment to deploy to')
             string(name: 'COMMIT_ID', defaultValue: '', description: 'Commit SHA to promote (required for sit/uat/prod)')
             string(name: 'COMPONENT', defaultValue: 'catalogue', description: 'Component to deploy')
@@ -19,10 +19,10 @@ def call (Map configMap){
         environment {
             def appVersion = ""
             def issueKey = ""
-            // Resolved once in 'resolve-inputs': prefer the Jira webhook's env.* payload
-            // (GenericTrigger only ever populates env.*, never params.*) and fall back to
-            // params.* for manual "Build with Parameters" runs. Every stage below reads
-            // these instead of params.* directly, so one build handles both trigger paths.
+            /* Resolved once in 'resolve-inputs': prefer the Jira webhook's env.* payload
+               (GenericTrigger only ever populates env.*, never params.*) and fall back to
+               params.* for manual "Build with Parameters" runs. Every stage below reads
+               these instead of params.* directly, so one build handles both trigger paths. */
             def env_ENVIRONMENT = ""
             def env_COMMIT_ID = ""
             def env_COMPONENT = ""
@@ -41,12 +41,12 @@ def call (Map configMap){
             disableConcurrentBuilds()
             timeout(time: 15, unit: 'MINUTES')
         }
-        // Branch jobs under this multibranch project have their whole Configure page
-        // locked (computed from the Jenkinsfile scan), so "Trigger builds remotely"
-        // can't be set via the UI at all. Declaring the trigger here instead means it's
-        // regenerated from code on every scan — Jira Automation calls this webhook
-        // directly. The 'jira-secret' credential is a Secret text credential; its
-        // value is whatever gets passed as ?token=... in the webhook URL.
+        /* Branch jobs under this multibranch project have their whole Configure page
+           locked (computed from the Jenkinsfile scan), so "Trigger builds remotely"
+           can't be set via the UI at all. Declaring the trigger here instead means it's
+           regenerated from code on every scan — Jira Automation calls this webhook
+           directly. The 'jira-secret' credential is a Secret text credential; its
+           value is whatever gets passed as ?token=... in the webhook URL. */
         triggers {
             GenericTrigger(
                 genericVariables: [
@@ -65,11 +65,11 @@ def call (Map configMap){
             )
         }
         stages {
-            // Runs first, always. Resolves the real inputs for this build once, so
-            // every later stage can just read these instead of choosing between
-            // params.* and env.* itself. env.* wins when present (webhook path) —
-            // params.ENVIRONMENT is a choice param and can never actually be blank,
-            // so it can't be used as an "was this a webhook build" signal itself.
+            /* Runs first, always. Resolves the real inputs for this build once, so
+               every later stage can just read these instead of choosing between
+               params.* and env.* itself. env.* wins when present (webhook path) —
+               params.ENVIRONMENT is a choice param and can never actually be blank,
+               so it can't be used as an "was this a webhook build" signal itself. */
             stage('resolve-inputs') {
                 steps {
                     script {
@@ -84,8 +84,8 @@ def call (Map configMap){
                     }
                 }
             }
-            // Re-verify the merged commit in dev: redeploy the image built on the
-            // feature branch and re-run api-tests against it before it's considered good.
+            /* Re-verify the merged commit in dev: redeploy the image built on the
+               feature branch and re-run api-tests against it before it's considered good. */
             stage('read-version'){
                 when {
                     expression { env_ENVIRONMENT == 'dev' }
@@ -151,11 +151,11 @@ def call (Map configMap){
                     }
                 }
             }
-            // Dev-deploy and api-tests passed against this commit — open the Jira ticket
-            // that tracks it through SIT/UAT/PROD, carrying the commit and version so
-            // nobody has to type them in by hand later. Jenkins does not trigger SIT
-            // itself — the ticket sits at Trigger SIT until Jira's Automation rule
-            // fires the webhook above.
+            /* Dev-deploy and api-tests passed against this commit — open the Jira ticket
+               that tracks it through SIT/UAT/PROD, carrying the commit and version so
+               nobody has to type them in by hand later. Jenkins does not trigger SIT
+               itself — the ticket sits at Trigger SIT until Jira's Automation rule
+               fires the webhook above. */
             stage('create-jira-ticket') {
                 when {
                     expression { env_ENVIRONMENT == 'dev' }
@@ -167,8 +167,8 @@ def call (Map configMap){
                     }
                 }
             }
-            // Promote the same image that just passed dev/api-tests by retagging it
-            // with the short commit SHA in ECR.
+            /* Promote the same image that just passed dev/api-tests by retagging it
+               with the short commit SHA in ECR. */
             stage('promote-image') {
                 when {
                     expression { env_ENVIRONMENT == 'dev' }
@@ -194,11 +194,11 @@ def call (Map configMap){
                     }
                 }
             }
-            // Jira-driven promotion path: SIT/UAT/PROD are all started by a Jira
-            // Automation rule hitting the webhook above, which resolve-inputs already
-            // folded into env_*. Each stage further down the chain (sit-deploy,
-            // sit-integration-tests, ...) gates the next environment, so the required
-            // contexts grow with the target.
+            /* Jira-driven promotion path: SIT/UAT/PROD are all started by a Jira
+               Automation rule hitting the webhook above, which resolve-inputs already
+               folded into env_*. Each stage further down the chain (sit-deploy,
+               sit-integration-tests, ...) gates the next environment, so the required
+               contexts grow with the target. */
             stage('validate-commit-status') {
                 when {
                     expression { env_ENVIRONMENT in ['sit', 'uat', 'prod'] }
@@ -266,9 +266,9 @@ def call (Map configMap){
                             withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                                 sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
 
-                                // The Jenkins agent can't resolve *.svc.cluster.local from
-                                // roboshop-sit, but it's in the same VPC as the EKS pods —
-                                // route by pod IP instead of relying on cluster DNS.
+                                /* The Jenkins agent can't resolve *.svc.cluster.local from
+                                   roboshop-sit, but it's in the same VPC as the EKS pods —
+                                   route by pod IP instead of relying on cluster DNS. */
                                 def catalogueIp = utils.getPodIP('roboshop-sit', 'catalogue')
                                 def cartIp      = utils.getPodIP('roboshop-sit', 'cart')
                                 def userIp      = utils.getPodIP('roboshop-sit', 'user')
@@ -345,9 +345,9 @@ def call (Map configMap){
                             withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                                 sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
 
-                                // The Jenkins agent can't resolve *.svc.cluster.local from
-                                // roboshop-sit, but it's in the same VPC as the EKS pods —
-                                // route by pod IP instead of relying on cluster DNS.
+                                /* The Jenkins agent can't resolve *.svc.cluster.local from
+                                   roboshop-uat, but it's in the same VPC as the EKS pods —
+                                   route by pod IP instead of relying on cluster DNS. */
                                 def catalogueIp = utils.getPodIP('roboshop-uat', 'catalogue')
                                 def cartIp      = utils.getPodIP('roboshop-uat', 'cart')
                                 def userIp      = utils.getPodIP('roboshop-uat', 'user')
@@ -378,10 +378,10 @@ def call (Map configMap){
                     }
                 }
             }
-            // CR gate: number + version must be supplied, deploy must fall inside the
-            // approved window, and a human has to click approve. Runs with its own
-            // timeout so waiting on a person doesn't get killed by the pipeline's
-            // overall 15-minute budget.
+            /* CR gate: number + version must be supplied, deploy must fall inside the
+               approved window, and a human has to click approve. Runs with its own
+               timeout so waiting on a person doesn't get killed by the pipeline's
+               overall 15-minute budget. */
             stage('change-request-check') {
                 when {
                     expression { env_ENVIRONMENT == 'prod' }
@@ -398,8 +398,8 @@ def call (Map configMap){
                             error("VERSION is required for a prod deploy")
                         }
 
-                        // Dummy deployment-window check — placeholder until this is wired
-                        // up to a real CR system. Blocks weekend prod deploys for now.
+                        /* Dummy deployment-window check — placeholder until this is wired
+                           up to a real CR system. Blocks weekend prod deploys for now. */
                         def dayOfWeek = sh(script: 'date +%u', returnStdout: true).trim().toInteger()
                         if (dayOfWeek >= 6) {
                             error("CR ${env_CR_NUMBER}: outside the approved deployment window (no weekend prod deploys) — dummy check, replace with a real CR window lookup")
@@ -419,18 +419,12 @@ def call (Map configMap){
                         withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                             sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
 
-                            // Only attempt a rollback if there's a prior successful release
-                            // to roll back to — a failed first-ever deploy has nothing behind it.
+                            /* Only attempt a rollback if there's a prior successful release
+                               to roll back to — a failed first-ever deploy has nothing behind it. */
                             def releaseExists = sh(
                                 script: "helm status ${env_COMPONENT} -n roboshop-prod > /dev/null 2>&1",
                                 returnStatus: true
                             ) == 0
-                            /* helm upgrade --install ${env_COMPONENT} ./helm \
-                                        -f ./helm/values-prod.yaml \
-                                        --namespace roboshop-prod \
-                                        --create-namespace \
-                                        --set deployment.imageVersion=${env_COMMIT_ID} \
-                                        --wait --timeout 5m */
                             try {
                                 sh """
                                     helm upgrade --install ${env_COMPONENT} ./helm \
@@ -438,7 +432,7 @@ def call (Map configMap){
                                         --namespace roboshop-prod \
                                         --create-namespace \
                                         --set deployment.imageVersion=${env_COMMIT_ID} \
-                                        --wait --timeout 1m
+                                        --wait --timeout 5m
 
                                     kubectl rollout status deployment/${env_COMPONENT} -n roboshop-prod --timeout=120s
                                 """
@@ -461,8 +455,8 @@ def call (Map configMap){
                     }
                 }
             }
-            // Only reached if prod-deploy succeeded — declarative pipeline stops
-            // running further stages once one fails.
+            /* Only reached if prod-deploy succeeded — declarative pipeline stops
+               running further stages once one fails. */
             stage('tag-release') {
                 when {
                     expression { env_ENVIRONMENT == 'prod' }
