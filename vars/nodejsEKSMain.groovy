@@ -453,7 +453,7 @@ def call (Map configMap){
                                 }
                                 utils.updateCommitStatus('failure', 'Deploy to roboshop-prod failed', 'prod-deploy')
                                 if (env_ISSUE_KEY?.trim()) {
-                                    utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'PROD FAILED')
+                                    utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'PROD failed')
                                 }
                                 throw e
                             }
