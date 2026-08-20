@@ -240,7 +240,7 @@ def createPullRequest(String base = 'main', String title = '', String body = '')
                         --arg base  "$PR_BASE" \
                         --arg body  "$PR_BODY" \
                         '{title: $title, head: $head, base: $base, body: $body}' \
-                    | curl -sf \
+                    | curl -f \
                            -X POST \
                            -H "Authorization: Bearer $GITHUB_TOKEN" \
                            -H "Accept: application/vnd.github+json" \
