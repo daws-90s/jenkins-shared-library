@@ -432,7 +432,7 @@ def call (Map configMap){
                                         -f ./helm/values-prod.yaml \
                                         --namespace roboshop-prod \
                                         --create-namespace \
-                                        --set deployment.imageVersion="nothing" \
+                                        --set deployment.imageVersion=${env_COMMIT_ID} \
                                         --wait --timeout 5m
 
                                     kubectl rollout status deployment/${env_COMPONENT} -n roboshop-prod --timeout=120s
