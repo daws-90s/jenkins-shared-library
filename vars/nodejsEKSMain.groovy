@@ -425,13 +425,14 @@ def call (Map configMap){
                                 script: "helm status ${env_COMPONENT} -n roboshop-prod > /dev/null 2>&1",
                                 returnStatus: true
                             ) == 0
+                            //--set deployment.imageVersion=${env_COMMIT_ID} \
                             try {
                                 sh """
                                     helm upgrade --install ${env_COMPONENT} ./helm \
                                         -f ./helm/values-prod.yaml \
                                         --namespace roboshop-prod \
                                         --create-namespace \
-                                        --set deployment.imageVersion=${env_COMMIT_ID} \
+                                        --set deployment.imageVersion="nothing" \
                                         --wait --timeout 5m
 
                                     kubectl rollout status deployment/${env_COMPONENT} -n roboshop-prod --timeout=120s
